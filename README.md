@@ -7,12 +7,24 @@ See [docs](docs) for processor documentation.
 
 See [here](as/README.md) for a list of demo programs and what they do.
 
+The processor contains 12 compute cores drawing to a 320x240 framebuffer. The
+processor's instruction ROM is programmable, allowing different kernels to be
+streamed to it. Simple modifications, like changing the number of cores, can be
+done by modifying the respective parameter in `hdl/attrs.sv`. Changing some of
+the other parameters is a little more involved.
+
 ## Building
+
+PARAGON is designed for the Spartan-7 XC7S50 FPGA. Its smaller brothers may not
+have enough resources to run the full processor specified here and should
+therefore be customized.
 
 All sources are included in `hdl/`. The top level file lives at
 `hdl/synth/core_top.sv`. The processor uses a VGA-HDMI converter IP provided by
 RealDigital. The IP is found at `hdl/synth/hdmi_ip`. It is configured use RGB
-332 (3 bits of red, 3 bits of green, and 2 bits of blue).
+332 (3 bits of red, 3 bits of green, and 2 bits of blue). Note that this IP is
+designed for the Spartan-7 and makes use of Xilinx primitives. Building this
+design for another FPGA will require a different HDMI encoder.
 
 Aside from the VGA-HDMI IP, the processor requires instantiation of a single
 Clocking Wizard. The wizard takes in the 100MHz clock from the board and outputs
@@ -22,7 +34,9 @@ the clock frequencies specified by the names of the instantiation in
 Simulations live at `hdl/sim`.
 
 Additionally, the graphics processor uses a MicroBlaze processor to act as a
-controlling CPU. It is fairly simple and requires the following components:
+controlling CPU. Again, this is a Xilinx specific feature and building on other
+FPGAs will require a different microprocessor. It is fairly simple and requires
+the following components:
 
 * At least 16KB of on chip memory (I used 64KB)
 * MicroBlaze Debug Module
@@ -39,8 +53,6 @@ controlling CPU. It is fairly simple and requires the following components:
 The MicroBlaze processor is very minimal without expensive features like barrel
 shifter and multiplier. However, inclusion of such features should not affect
 operation.
-
-The hardware can be built using the XDC file at `/top.xdc`.
 
 ## Software
 
