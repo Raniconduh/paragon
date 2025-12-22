@@ -7,6 +7,8 @@ See [docs](docs) for processor documentation.
 
 See [here](as/README.md) for a list of demo programs and what they do.
 
+See [here](emu/README.md) for documentation on the emulator.
+
 The processor contains 12 compute cores drawing to a 320x240 framebuffer. The
 processor's instruction ROM is programmable, allowing different kernels to be
 streamed to it. Simple modifications, like changing the number of cores, can be
