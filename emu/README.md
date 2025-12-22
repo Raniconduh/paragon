@@ -17,3 +17,13 @@ That is, each instruction is a single line and each line contains only the bits
 
 To run, `emu kernel.bin` where `kernel.bin` contains the kernel to run. Quit the
 emulator with `^C`.
+
+## Demos
+
+Precompiled demos are included in `demos/`.
+
+* `grad.bin`: Simple gradient
+* `mandel.bin`: Mandelbrot set
+* `rul30.bin`: Rule 30 cellular automaton
+* `gol.bin`: Conway's Game of Life
+* `cube.bin`: Rotating Cube
