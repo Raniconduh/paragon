@@ -1,0 +1,22 @@
+digraph l2 {
+	fontsize=20;
+	fontname="mono";
+
+	node [shape=rect, style=rounded, fontname="mono"];
+	s_idle [label="busy = 0\nif (grant_ready) latch_grant = 1"];
+	s_handle [label="if (granted_en) fb_en = 1"];
+	s_wait [label="fb_en = 1\lif (fb_ready) {\l   fb_en = 0\l    granted_ready = 1\l}\l"];
+	s_inv [label="invalidate = 1"];
+
+	s_idle -> s_idle [label="!grant_ready"];
+	s_idle -> s_handle [label="grant_ready"];
+
+	s_handle -> s_wait [label="granted_en"];
+	s_handle -> s_idle [label="!granted_en"];
+
+	s_wait -> s_wait [label="!fb_ready"];
+	s_wait -> s_inv [label="fb_ready &&\ngranted_w"];
+	s_wait -> s_idle [label="fb_ready &&\n!granted_w"];
+
+	s_inv -> s_idle;
+}

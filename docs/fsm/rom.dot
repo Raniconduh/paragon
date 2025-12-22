@@ -1,0 +1,32 @@
+digraph rom {
+	fontsize=20;
+	fontname="mono";
+
+	node [shape=rect, style=rounded, fontname="mono"];
+	reset_cond [label="Idle"];
+
+	s_idle [label="lo_ack = 1"];
+	s_reset [label="counter <- 0"];
+	s_write [label="BRAM.addr = counter\nBRAM.d_in = d_in\nBRAM.en = BRAM.w = 1\n\ncounter <- counter + 1"];
+//	s_wait_mem [label="Wait for memory"];
+	s_written [label="ready = 1"];
+
+	// CPU asserts `prog`.
+	// On rising edge of prog, GPU resets everything,
+	// and initializes ROM programming.
+	// GPU waits for `avail` to be asserted.
+	// GPU writes data to all RAMs
+	// GPU asserts `ready` after write finishes
+	// GPU waits for `avail` to go low, sends `lo_ack`, then transitions back
+
+	reset_cond -> s_reset [label=" rising_edge(prog)"];
+	s_reset -> s_idle;
+
+	s_idle -> s_idle [label=" !avail"];
+	s_idle -> s_write [label=" avail"];
+
+	s_write -> s_written;
+
+	s_written -> s_written [label=" avail"];
+	s_written -> s_idle [label=" !avail"];
+}

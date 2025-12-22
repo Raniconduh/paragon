@@ -1,0 +1,22 @@
+digraph arbiter {
+	fontsize=20;
+	fontname="mono";
+
+	node [shape=rect, style=rounded, fontname="mono"];
+	s_idle [label="if (!busy) for i = 0 to N_CORES {\l    idx = (ptr + i) % N_CORES\l    if (requests[idx]) {\l        grant <- idx\l        ptr <- (idx + 1) % N_CORES\l        break\l    }\l}\l"];
+	s_ready [label="grant_ready = 1"];
+	s_wait_busy [label="Wait for Busy"];
+	s_wait_free [label="Wait for Not Busy"];
+
+	s_idle -> s_idle [label="!req"];
+	s_idle -> s_ready [label="req"];
+
+	s_ready -> s_wait_busy [label="!busy"];
+	s_ready -> s_wait_free [label="busy"];
+
+	s_wait_busy -> s_wait_busy [label="!busy"];
+	s_wait_busy -> s_wait_free [label="busy"];
+
+	s_wait_free -> s_wait_free [label="busy"];
+	s_wait_free -> s_idle [label="!busy"];
+}

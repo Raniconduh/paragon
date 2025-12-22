@@ -1,0 +1,64 @@
+digraph fsm {
+	fontsize=20;
+	fontname="mono";
+	rankdir=LR;
+
+// states
+node [shape=rect, style=rounded, fontname="mono"];
+s_fetch [label="rom.active = 1", group="fetch"];
+s_decode [label=
+"ir <- rom.out
+PC <- PC + 1
+[ IR[15:12] ]", group="fetch"];
+
+s_alu [label=
+"dr <- ALU_OP(sr1, sr2)
+Set flags", group="alu"];
+alu_to_fetch [label="To Fetch", style="rounded, dashed", group="alu"];
+
+s_shift [label="dr <- SHIFT(dr, imm)\nSet flags", group="shift"];
+shift_to_fetch [label="To Fetch", style="rounded, dashed", group="shift"];
+
+s_ld  [label=
+"vram.addr = sr1
+vram.active = 1
+reg.in = vram.out
+reg.w = 1 when vram.ready", group="ld"];
+ld_to_fetch [label="To Fetch", style="rounded, dashed", group="ld"];
+
+s_st  [label=
+"vram.addr = dr
+vram.in = sr1
+vram.w = 1 when !vram.ready
+vram.active = 1 when !vram.ready", group="st"];
+st_to_fetch [label="To Fetch", style="rounded, dashed", group="st"];
+	
+s_ldi [label="dr <- ZEXT(IR[7:0])", group="ldi"];
+ldi_to_fetch [label="To Fetch", style="rounded, dashed", group="ldi"];
+
+s_b [label=
+"if (CC) {\l    if (!IR[8]) PC <- sr1\l    else PC <- PC + SEXT(IR[7:0])\l}\l", group="b"];
+b_to_fetch [label="To Fetch", style="rounded, dashed", group="b"];
+
+s_addi [label="dr = ALU_OP+(sr1, SEXT(simm4))", group="addi"];
+s_addi_to_fetch [label="To Fetch", style="rounded, dashed", group="addi"];
+
+s_aipc [label="dr = ALU_OP+(PC, SEXT(imm8))", group="aipc"];
+s_aipc_to_fetch [label="To Fetch", style="rounded, dashed", group="aipc"];
+
+	// transitions
+	s_fetch -> s_fetch [label="!rom.ready"];
+	s_fetch -> s_decode [label="rom.ready"];
+
+	s_decode -> s_alu [label="ADD, SUB,\nMUL, AND,\nOR, XOR,\nNOT"]; s_alu -> alu_to_fetch;
+	s_decode -> s_shift [label="SH"]; s_shift -> shift_to_fetch;
+	s_decode -> s_ld [label="LD"];
+	            s_ld -> s_ld [label="!vram.ready"];
+	            s_ld -> ld_to_fetch [label="vram.ready"];
+	s_decode -> s_st [label="ST"];
+	            s_st -> s_st [label="!vram.ready"]; s_st -> st_to_fetch [label="vram.ready"];
+	s_decode -> s_ldi [label="LDI"]; s_ldi -> ldi_to_fetch;
+	s_decode -> s_b [label="B"]; s_b -> b_to_fetch;
+	s_decode -> s_addi [label="ADDI"]; s_addi -> s_addi_to_fetch;
+	s_decode -> s_aipc [label="AIPC"]; s_aipc -> s_aipc_to_fetch;
+}

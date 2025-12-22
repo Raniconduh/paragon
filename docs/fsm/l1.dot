@@ -1,0 +1,45 @@
+digraph l1 {
+	fontsize=20;
+	fontname="mono";
+
+	node [shape=diamond, fontname="mono"];
+	s_idle [label="Idle"];
+
+	node [shape=rect, style=rounded, fontname="mono"];
+	s_idle_inv [label="if (inv_hit) valid[idx] <- 0\ninved = 1", group="idle"];
+	s_idle_hit [label="cache_en = 1", group="idle"];
+	s_idle_miss [label="L2_en = 1", group="idle"];
+	s_idle_sw [label="d_out = sw_in", group="idle"];
+
+	s_wait_read [label="cache_en = 1\nready = cache_ready", group="1"];
+	s_wait_write [label="cache_en = 1\nlatch_cache_out = cache_ready", group="1"];
+	s_wait_write_l2 [label="cache_en = 1\ncache_w = 1\nL2_in = cache_in = SETB(cache_out, byte_in)\nL2_en = 1\nL2_w = 1\nready = L2_ready", group="2"];
+	s_refill [label="L2_en = 1\ncache_in = L2_out\ncache_en = L2_ready\ncache_w = L2_ready\nvalid[idx] <- L2_ready", group="1"];
+	s_switches [label="d_out = sw_in\nread = 1", group="1"];
+	
+	s_idle -> s_idle_inv [style=dashed, label="inv"];
+	s_idle -> s_idle_hit [style=dashed, label="en && hit\n&& !inv"];
+	s_idle -> s_idle_miss [style=dashed, label="en && !hit\n&& !inv"];
+	s_idle -> s_idle_sw [style=dashed, label="en && addr = -1\n&& !inv"];
+
+	s_idle_inv -> s_idle;
+	s_idle_hit -> s_wait_read [label="!w"];
+	s_idle_hit -> s_wait_write [label="w"];
+	s_idle_miss -> s_refill;
+	s_idle_sw -> s_switches;
+
+	s_wait_read -> s_idle [label="cache_ready || !hit"];
+	s_wait_read -> s_wait_read [label="hit && !cache_ready"];
+
+	s_wait_write -> s_wait_write_l2 [label="hit && cache_ready"];
+	s_wait_write -> s_wait_write [label="hit && !cache_ready"];
+	s_wait_write -> s_idle [label="!hit"];
+
+	s_wait_write_l2 -> s_idle [label="L2_ready || !hit"];
+	s_wait_write_l2 -> s_wait_write_l2 [label="hit && !L2_ready"];
+
+	s_refill -> s_idle [label="L2_ready"];
+	s_refill -> s_refill [label="!L2_ready"];
+
+	s_switches -> s_idle;
+}
