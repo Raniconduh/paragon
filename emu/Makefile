@@ -5,7 +5,7 @@ SRC=	src/core.cpp \
 		src/vram.cpp
 
 CXX?=	c++
-CFLAGS+=	-Iinclude -Wall -Wextra
+CFLAGS+=	-Iinclude -Wall -Wextra -Ofast
 LDFLAGS+=	-lSDL3
 
 all: ${SRC} include/*.h include/*.hpp
