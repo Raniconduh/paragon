@@ -57,6 +57,7 @@ int main(int argc, char ** argv) {
 
 	auto last_time = std::chrono::high_resolution_clock::now();
 
+	bool quit = false;
 	bool running = true;
 	while (running) {
 		for (int i_ = 0; i_ < 100000; i_++) {
@@ -73,9 +74,29 @@ int main(int argc, char ** argv) {
 			last_time = now_time;
 		}
 
+		running = false;
+		for (int core = 0; core < N_CORES; core++) {
+			if (!cores[core].halted) {
+				running = true;
+			}
+		}
+
 		SDL_Event e;
 		while (SDL_PollEvent(&e)) {
-			if (e.type == SDL_EVENT_QUIT) running = false;
+			if (e.type == SDL_EVENT_QUIT) {
+				quit = true;
+				running = false;
+			}
+		}
+	}
+
+	fb_refresh();
+
+	while (!quit) {
+		SDL_Delay(50);
+		SDL_Event e;
+		while (SDL_PollEvent(&e)) {
+			if (e.type == SDL_EVENT_QUIT) return 0;
 		}
 	}
 }

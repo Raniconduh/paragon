@@ -34,3 +34,4 @@ enum opcode_t {
 #define MSB(word) (((word) >> 23) & 1)
 
 #define MASK(x) ((x) & 0xFFFFFF)
+#define NEG1 ((uint32_t)0xFFFFFF)

@@ -42,7 +42,7 @@ void step_core(core_t & core, const std::vector<uint32_t> & kernel) {
 	uint8_t imm4  = GET_IMM4(ir);
 
 	bool branch = (GET_BN(ir) & flags.n)
-                | (GET_BZ(ir) & flags.z)
+	            | (GET_BZ(ir) & flags.z)
 	            | (GET_BC(ir) & flags.c)
 	            | (GET_BN(ir) & GET_BZ(ir) & GET_BC(ir));
 
@@ -65,8 +65,12 @@ void step_core(core_t & core, const std::vector<uint32_t> & kernel) {
 		case OP_LDI: set_reg(core, dra, (uint32_t)imm8); break;
 		case OP_B:
 			if (branch) {
-				if (GET_BI(ir)) pc = PC_MASK(pc + sext8(imm8));
+				uint32_t simm = sext8(imm8);
+
+				if (GET_BI(ir)) pc = PC_MASK(pc + simm);
 				else pc = PC_MASK(sr1);
+
+				if (simm == NEG1) core.halted = true;
 			}
 			break;
 		case OP_ADDI: op = sr1 + sext4(imm4); break;
